@@ -6,9 +6,29 @@
 //
 
 #include <iostream>
+#include "Sudoku/Grid.hpp"
 
 int main(int argc, const char * argv[]) {
-    // insert code here...
-    std::cout << "Hello, World!\n";
+    
+    int startingGrid[9][9] =
+    {
+        { 1, 2, 3,  0, 0, 0,  0, 0, 0, },
+        { 4, 0, 0,  0, 0, 0,  0, 0, 0, },
+        { 5, 0, 0,  4, 0, 0,  0, 0, 0, },
+        
+        { 0, 0, 0,  0, 0, 0,  0, 0, 0, },
+        { 0, 0, 0,  0, 0, 0,  0, 0, 0, },
+        { 0, 0, 0,  0, 0, 0,  0, 0, 0, },
+        
+        { 0, 0, 0,  0, 0, 0,  0, 0, 0, },
+        { 0, 0, 0,  0, 0, 0,  0, 0, 0, },
+        { 0, 0, 0,  0, 0, 0,  0, 0, 0, },
+    };
+    
+    Sudoku::Grid newGrid(startingGrid);
+    
+    newGrid.Validate();
+    newGrid.Print();
+    
     return 0;
 }
