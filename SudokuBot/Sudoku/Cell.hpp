@@ -11,8 +11,8 @@
 
 namespace Sudoku {
 
-    class Cell {
-
+    class Cell
+    {
     public:
         static bool IsValidValue(const int value);
         

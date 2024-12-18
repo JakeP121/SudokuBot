@@ -38,33 +38,23 @@ namespace Sudoku {
         }
         
         mCells[column][row].SetValue(value);
+        ValidateCell(row, column);
     }
 
-    void Grid::Print(bool drawDividers /*= true*/) const {
+    bool Grid::IsFilled() const {
+        bool isFilled = true;
         
         ForEachCell([&](const Cell& cell, const int row, const int column){
-            
-            cell.Print();
-            
-            const bool isLastCellInRow = (column == (GRID_LENGTH - 1));
-            if (isLastCellInRow)
+            if (!cell.GetValue().has_value())
             {
-                std::cout << "\n";
+                isFilled = false;
+                return false;
             }
             
-            if (drawDividers)
-            {
-                if ((column > 0) && (column < GRID_LENGTH - 1) && (column+1) % 3 == 0)
-                {
-                    std::cout << " | ";
-                }
-                
-                if (isLastCellInRow && (row < GRID_HEIGHT - 1) && (row+1) % 3 == 0)
-                {
-                    std::cout << "---------------------------------\n";
-                }
-            }
+            return true;
         });
+        
+        return isFilled;
     }
 
     bool Grid::Validate() {
@@ -73,13 +63,14 @@ namespace Sudoku {
         
         ForEachCell([&](Cell& cell, const int row, const int column){
             cell.SetValid(true);
+            return true;
         });
         
         ForEachCell([&](Cell& cell, const int row, const int column){
             
             if (!cell.GetValue().has_value())
             {
-                return; // No value set yet
+                return true; // No value set yet
             }
             
             // Check for matching cells in row
@@ -124,41 +115,89 @@ namespace Sudoku {
                     anyErrors = true;
                 }
             }
+            
+            return true;
         });
         
-        return anyErrors;
+        return !anyErrors;
     }
 
-    bool Grid::IsValidCoordinate(const int row, const int column) const {
-        if (row >= GRID_LENGTH)
+    void Grid::Print(bool drawDividers /*= true*/) const {
+        
+        ForEachCell([&](const Cell& cell, const int row, const int column){
+            
+            cell.Print();
+            
+            const bool isLastCellInRow = (column == (GRID_LENGTH - 1));
+            if (isLastCellInRow)
+            {
+                std::cout << "\n";
+            }
+            
+            if (drawDividers)
+            {
+                if ((column > 0) && (column < GRID_LENGTH - 1) && (column+1) % 3 == 0)
+                {
+                    std::cout << " | ";
+                }
+                
+                if (isLastCellInRow && (row < GRID_HEIGHT - 1) && (row+1) % 3 == 0)
+                {
+                    std::cout << "---------------------------------\n";
+                }
+            }
+            
+            return true;
+        });
+    }
+
+    void Grid::ForEachCell(std::function<bool(Cell&, const int /*row*/, const int /*column*/)> predicate) {
+        for (int row = 0; row < GRID_HEIGHT; ++row)
         {
-            return false;
+            for (int column = 0; column < GRID_LENGTH; ++column)
+            {
+                if (!predicate(mCells[column][row], row, column))
+                {
+                    return;
+                }
+            }
         }
-        if (column >= GRID_HEIGHT)
+    }
+
+    void Grid::ForEachCell(std::function<bool(const Cell&, const int /*row*/, const int /*column*/)> predicate) const {
+        for (int row = 0; row < GRID_HEIGHT; ++row)
         {
-            return false;
+            for (int column = 0; column < GRID_LENGTH; ++column)
+            {
+                if (!predicate(mCells[column][row], row, column))
+                {
+                    return;
+                }
+            }
+        }
+    }
+
+    void Grid::GetAllCellsInRow(const int row, Cell* (&outCells)[GRID_LENGTH]) {
+        if (!IsValidCoordinate(row, 0))
+        {
+            throw "Invalid row";
         }
         
-        return true;
-    }
-
-    void Grid::ForEachCell(std::function<void(Cell&, const int /*row*/, const int /*column*/)> predicate) {
-        for (int row = 0; row < GRID_HEIGHT; ++row)
+        for (int col = 0; col < GRID_HEIGHT; ++col)
         {
-            for (int column = 0; column < GRID_LENGTH; ++column)
-            {
-                predicate(mCells[column][row], row, column);
-            }
+            outCells[col] = &mCells[col][row];
         }
     }
 
-    void Grid::ForEachCell(std::function<void(const Cell&, const int /*row*/, const int /*column*/)> predicate) const {
-        for (int row = 0; row < GRID_HEIGHT; ++row)
+    void Grid::GetAllCellsInColumn(const int column, Cell* (&outCells)[GRID_HEIGHT]) {
+        if (!IsValidCoordinate(0, column))
         {
-            for (int column = 0; column < GRID_LENGTH; ++column)
-            {
-                predicate(mCells[column][row], row, column);
-            }
+            throw "Invalid column";
+        }
+        
+        for (int row = 0; row < GRID_LENGTH; ++row)
+        {
+            outCells[row] = &mCells[column][row];
         }
     }
 
@@ -182,5 +221,83 @@ namespace Sudoku {
                 outCells[outCellIndex] = &mCells[outCellColumn][outCellRow];
             }
         }
+    }
+
+    bool Grid::IsValidCoordinate(const int row, const int column) const {
+        if (row >= GRID_LENGTH)
+        {
+            return false;
+        }
+        if (column >= GRID_HEIGHT)
+        {
+            return false;
+        }
+        
+        return true;
+    }
+
+    bool Grid::ValidateCell(const int row, const int column) {
+        Cell& cell = mCells[column][row];
+        if (!cell.GetValue().has_value())
+        {
+            return true; // No value set yet
+        }
+        
+        bool anyErrors = false;
+        
+        // Check for matching cells in row
+        for (int i = 0; i < GRID_LENGTH; ++i)
+        {
+            if (i == column)
+            {
+                continue; // Don't test against ourself
+            }
+            
+            Cell& otherCell = mCells[i][row];
+            if (cell == otherCell)
+            {
+                cell.SetValid(false);
+                otherCell.SetValid(false);
+                anyErrors = true;
+            }
+        }
+        
+        // Check for matching cells in column
+        for (int i = 0; i < GRID_HEIGHT; ++i)
+        {
+            if (i == row)
+            {
+                continue; // Don't test against ourself
+            }
+            
+            Cell& otherCell = mCells[column][i];
+            if (cell == otherCell)
+            {
+                cell.SetValid(false);
+                otherCell.SetValid(false);
+                anyErrors = true;
+            }
+        }
+        
+        // Check for matching cells in box
+        Cell* sectionCells[NUM_CELLS_IN_SECTION];
+        GetAllCellsInSection(row, column, sectionCells);
+        for (int i = 0; i < NUM_CELLS_IN_SECTION; ++i)
+        {
+            if (sectionCells[i] == nullptr || &cell == sectionCells[i])
+            {
+                continue;
+            }
+             
+            Cell& otherCell = *sectionCells[i];
+            if (cell == otherCell)
+            {
+                cell.SetValid(false);
+                otherCell.SetValid(false);
+                anyErrors = true;
+            }
+        }
+        
+        return !anyErrors;
     }
 }
