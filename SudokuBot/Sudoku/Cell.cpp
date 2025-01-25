@@ -10,6 +10,18 @@
 #include <string>
 
 namespace Sudoku {
+
+    Cell::Cell(const int row, const int column, const int value /* = 0 */)
+        : mRow(row)
+        , mColumn(column)
+    {
+        if (IsValidValue(value))
+        {
+            mValue = value;
+            mIsDefault = true;
+        }
+    }
+    
     bool Cell::IsValidValue(const int value) {
         return (value > 0 && value <= 9);
     }
@@ -30,6 +42,14 @@ namespace Sudoku {
         }
         
         mValue = value;
+    }
+
+    void Cell::ClearValue()
+    {
+        if (!mIsDefault)
+        {
+            mValue.reset();
+        }
     }
 
     void Cell::Print() const {

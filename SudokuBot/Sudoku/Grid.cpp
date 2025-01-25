@@ -9,6 +9,7 @@
 #include <iostream>
 
 namespace Sudoku {
+
     Grid::Grid(const int (&initialGrid)[GRID_LENGTH][GRID_HEIGHT]) {
         Initialise(initialGrid);
     }
@@ -18,15 +19,8 @@ namespace Sudoku {
         {
             for (int column = 0; column < GRID_LENGTH; ++column)
             {
-                int value = initialGrid[column][row]; // Flipping this since it's nicer to handle it as [x][y] internally, but typing it would be [row (y)][column (x)]
-                if (Cell::IsValidValue(value))
-                {
-                    mCells[row][column].SetValue(value);
-                }
-                else
-                {
-                    mCells[row][column].ClearValue();
-                }
+                int value = initialGrid[row][column]; // Flipping this since it's nicer to handle it as [x][y] internally, but typing it would be [row (y)][column (x)]
+                mCells[column][row] = Cell(row, column, value);
             }
         }
     }
@@ -41,11 +35,20 @@ namespace Sudoku {
         ValidateCell(row, column);
     }
 
+    void Grid::ClearCell(const int row, const int column) {
+        if (!IsValidCoordinate(row, column))
+        {
+            throw "Invalid coordinate";
+        }
+        
+        mCells[column][row].ClearValue();
+    }
+
     bool Grid::IsFilled() const {
         bool isFilled = true;
         
         ForEachCell([&](const Cell& cell, const int row, const int column){
-            if (!cell.GetValue().has_value())
+            if (!cell.HasValue())
             {
                 isFilled = false;
                 return false;
@@ -68,7 +71,7 @@ namespace Sudoku {
         
         ForEachCell([&](Cell& cell, const int row, const int column){
             
-            if (!cell.GetValue().has_value())
+            if (!cell.HasValue())
             {
                 return true; // No value set yet
             }
@@ -177,6 +180,15 @@ namespace Sudoku {
         }
     }
 
+    Cell* Grid::GetCell(const int row, const int column) {
+        if (!IsValidCoordinate(row, 0))
+        {
+            throw "Invalid row";
+        }
+        
+        return &mCells[column][row];
+    }
+
     void Grid::GetAllCellsInRow(const int row, Cell* (&outCells)[GRID_LENGTH]) {
         if (!IsValidCoordinate(row, 0))
         {
@@ -238,7 +250,7 @@ namespace Sudoku {
 
     bool Grid::ValidateCell(const int row, const int column) {
         Cell& cell = mCells[column][row];
-        if (!cell.GetValue().has_value())
+        if (!cell.HasValue())
         {
             return true; // No value set yet
         }

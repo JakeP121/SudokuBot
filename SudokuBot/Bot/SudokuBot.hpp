@@ -8,6 +8,7 @@
 
 #include <stdio.h>
 #include <set>
+#include <optional>
 
 namespace Sudoku {
     class Grid;
@@ -19,13 +20,15 @@ class SudokuBot
 public:
     SudokuBot(Sudoku::Grid& grid);
     
-    void Run(const bool printEachMove);
+    void Run();
     
 protected:
     virtual bool MainLoop() = 0;
     
+    std::optional<int> GetExclusivePossibleValue(const int row, const int column) const;
     void GetPossibleValues(const int row, const int column, std::set<int>& outValues) const;
+
+    void PrintGrid();
     
     Sudoku::Grid* mGrid = nullptr;
-    bool mPrintEachMove = false;
 };

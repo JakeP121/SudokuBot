@@ -12,7 +12,7 @@ namespace Utilities {
 
 void ClearConsole()
 {
-    std::cout << "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n";
+    std::cout << "\n\n";
 }
 
 }

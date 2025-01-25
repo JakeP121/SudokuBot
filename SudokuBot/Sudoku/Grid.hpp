@@ -8,23 +8,26 @@
 //
 
 #include <stdio.h>
-#include "Cell.hpp"
 #include <functional>
+#include <string>
 
-namespace Sudoku {
+#include "Cell.hpp"
+#include "SudokuDefines.h"
 
+namespace Sudoku {    
     class Grid
     {
     public:
-        static const int GRID_LENGTH = 9;
-        static const int GRID_HEIGHT = 9;
-        static const int NUM_CELLS_IN_SECTION = 9;
+        static const int GRID_LENGTH = SUDOKU_NUMBER;
+        static const int GRID_HEIGHT = SUDOKU_NUMBER;
+        static const int NUM_CELLS_IN_SECTION = SUDOKU_NUMBER;
         
         Grid() = default;
         Grid(const int (&initialGrid)[GRID_LENGTH][GRID_HEIGHT]);
         
         void Initialise(const int (&initialGrid)[GRID_LENGTH][GRID_HEIGHT]);
         void SetCell(const int row, const int column, const int value);
+        void ClearCell(const int row, const int column);
         
         bool IsFilled() const;
         bool Validate();
@@ -34,6 +37,7 @@ namespace Sudoku {
         void ForEachCell(std::function<bool(Cell&, const int /*row*/, const int /*column*/)> predicate);
         void ForEachCell(std::function<bool(const Cell&, const int /*row*/, const int /*column*/)> predicate) const;
         
+        Cell* GetCell(const int row, const int column);
         void GetAllCellsInRow(const int row, Cell* (&outCells)[GRID_LENGTH]);
         void GetAllCellsInColumn(const int column, Cell* (&outCells)[GRID_HEIGHT]);
         void GetAllCellsInSection(const int row, const int column, Cell* (&outCells)[NUM_CELLS_IN_SECTION]);

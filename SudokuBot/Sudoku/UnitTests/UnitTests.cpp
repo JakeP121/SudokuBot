@@ -22,6 +22,8 @@ bool Test_All() {
     {
         throw "Unit tests failed";
     }
+    
+    std::cout << "\n\n";
     return success;
 }
 
@@ -56,7 +58,7 @@ bool Test_GetAllCellsInRow() {
             return false;
         }
         
-        if (!rowCells[i]->GetValue().has_value())
+        if (!rowCells[i]->HasValue())
         {
             LogError(testName, "Returned a cell from a different row");
             return false;
@@ -98,7 +100,7 @@ bool Test_GetAllCellsInColumn() {
             return false;
         }
         
-        if (!columnCells[i]->GetValue().has_value())
+        if (!columnCells[i]->HasValue())
         {
             LogError(testName, "Returned a cell from a different column");
             return false;
@@ -141,7 +143,7 @@ bool Test_GetAllCellsInSection() {
             return false;
         }
         
-        if (!sectionCells[i]->GetValue().has_value())
+        if (!sectionCells[i]->HasValue())
         {
             LogError(testName, "Returned a cell from a different section");
             return false;
