@@ -33,7 +33,7 @@ bool SimpleSudokuBot::MainLoop() {
             anyMovesMade = true;
             
 #if PRINT_MOVES
-            printf("Cell %s only has one possible value: %i",
+            printf("Cell %s only has one possible value (%i). Filling that in\n",
                    cell.GetCoordinate().GetStringValue().c_str(),
                    value);
 #endif
@@ -46,7 +46,7 @@ bool SimpleSudokuBot::MainLoop() {
             anyMovesMade = true;
             
 #if PRINT_MOVES
-            printf("Cell %s has the exclusive possibility of %i in its row/column/section",
+            printf("Cell %s has the exclusive possibility of %i in its row/column/section. Filling that in\n",
                    cell.GetCoordinate().GetStringValue().c_str(),
                    *exclusivePossibleValue);
 #endif
